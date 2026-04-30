@@ -3,8 +3,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchSubreddits = createAsyncThunk(
   'subreddits/fetchSubreddits',
   async () => {
-    const response = await fetch('https://corsproxy.io/?https://www.reddit.com/subreddits/popular.json?limit=20');
+    const response = await fetch(`https://redditproxy-2ck0.onrender.com/subreddits/popular.json?limit=20`);
     const data = await response.json();
+    
     return data.data.children.map(child => ({
       id: child.data.id,
       name: child.data.display_name,

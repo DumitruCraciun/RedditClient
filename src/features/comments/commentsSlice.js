@@ -3,13 +3,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchComments = createAsyncThunk(
   'comments/fetchComments',
   async (permalink) => {
-    const response = await fetch(`https://corsproxy.io/?https://www.reddit.com${permalink}.json`);
+    const response = await fetch(`https://redditproxy-2ck0.onrender.com${permalink}.json`);
     const data = await response.json();
-    // Al doilea element din array conține comentariile
     const commentsData = data[1].data.children;
     
     return commentsData
-      .filter(child => child.kind === 't1') // doar comentarii, nu alte tipuri
+      .filter(child => child.kind === 't1')
       .map(child => ({
         id: child.data.id,
         author: child.data.author,

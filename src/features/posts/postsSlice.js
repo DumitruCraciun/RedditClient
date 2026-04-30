@@ -1,25 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Async thunk pentru a încărca postările de la Reddit
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (subreddit = 'popular') => {
-    // URL-ul original către API-ul Reddit
-    const redditUrl = `https://www.reddit.com/r/${subreddit}.json`;
-    // Folosește corsproxy.io în loc de allorigins
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(redditUrl)}`;
-
-    console.log("Fetching:", proxyUrl); // Pentru debugging
-    
-    const response = await fetch(proxyUrl);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    // Folosește propriul tău proxy în loc de cel public
+    const response = await fetch(`https://redditproxy-2ck0.onrender.com/r/${subreddit}.json`);
     const data = await response.json();
     
-    // data e deja obiectul de la Reddit, nu mai trebuie să parsam
     return data.data.children.map(child => ({
       id: child.data.id,
       title: child.data.title,
@@ -35,7 +22,7 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
-// Restul codului rămâne la fel
+// Restul codului (reducer, selectors) rămâne exact la fel, nu îl modifici
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
