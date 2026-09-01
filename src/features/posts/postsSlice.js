@@ -1,23 +1,24 @@
 // reddit-client/src/features/posts/postsSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Adaugă variabila de mediu pentru URL-ul proxy-ului
-const API_BASE = process.env.REACT_APP_API_URL || 'https://redditproxy-2ck0.onrender.com';
+// 🔥 SCHIMBĂ asta - nu mai folosim proxy-ul
+// const API_BASE = process.env.REACT_APP_API_URL || 'https://redditproxy-2ck0.onrender.com';
+
+// Inlocuiește cu URL-ul direct al Reddit
+const API_BASE = 'https://www.reddit.com';
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (subreddit = 'popular') => {
-    // Adaugă limit=20 pentru mai multe postări
-    const response = await fetch(`${API_BASE}/r/${subreddit}.json?limit=20`);
+    // 🔥 Modifică și URL-ul - folosește /r/subreddit/.json în loc de /r/subreddit.json
+    const response = await fetch(`${API_BASE}/r/${subreddit}/.json?limit=20`);
     
-    // Verifică dacă răspunsul e ok
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
     
-    // Verifică dacă avem date valide
     if (!data.data || !data.data.children) {
       throw new Error('Invalid response from Reddit');
     }
@@ -37,6 +38,7 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+// Restul codului rămâne EXACT la fel
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
@@ -44,12 +46,11 @@ const postsSlice = createSlice({
     isLoading: false,
     hasError: false,
     currentSubreddit: 'popular',
-    errorMessage: '', // Adaugă pentru mesaje de eroare mai clare
+    errorMessage: '',
   },
   reducers: {
     setCurrentSubreddit: (state, action) => {
       state.currentSubreddit = action.payload;
-      // Resetează erorile când schimbăm subreddit-ul
       state.hasError = false;
       state.errorMessage = '';
     },
@@ -71,7 +72,7 @@ const postsSlice = createSlice({
         state.isLoading = false;
         state.hasError = true;
         state.errorMessage = action.error.message || 'Failed to fetch posts';
-        state.posts = []; // Curăță postările vechi
+        state.posts = [];
       });
   },
 });
