@@ -1,16 +1,13 @@
 // reddit-client/src/features/posts/postsSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// 🔥 SCHIMBĂ asta - nu mai folosim proxy-ul
-// const API_BASE = process.env.REACT_APP_API_URL || 'https://redditproxy-2ck0.onrender.com';
-
-// Inlocuiește cu URL-ul direct al Reddit
+// 🔥 SCHIMBĂ - folosește Reddit direct
 const API_BASE = 'https://www.reddit.com';
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (subreddit = 'popular') => {
-    // 🔥 Modifică și URL-ul - folosește /r/subreddit/.json în loc de /r/subreddit.json
+    // 🔥 SCHIMBĂ - URL-ul corect cu /.json
     const response = await fetch(`${API_BASE}/r/${subreddit}/.json?limit=20`);
     
     if (!response.ok) {
@@ -38,7 +35,7 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
-// Restul codului rămâne EXACT la fel
+// Restul codului rămâne la fel
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
