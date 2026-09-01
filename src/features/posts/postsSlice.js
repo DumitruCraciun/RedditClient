@@ -1,11 +1,26 @@
+// reddit-client/src/features/posts/postsSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+
+// Adaugă variabila de mediu pentru URL-ul proxy-ului
+const API_BASE = process.env.REACT_APP_API_URL || 'https://redditproxy-2ck0.onrender.com';
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   async (subreddit = 'popular') => {
-    // Folosește propriul tău proxy în loc de cel public
-    const response = await fetch(`https://redditproxy-2ck0.onrender.com/r/${subreddit}.json`);
+    // Adaugă limit=20 pentru mai multe postări
+    const response = await fetch(`${API_BASE}/r/${subreddit}.json?limit=20`);
+    
+    // Verifică dacă răspunsul e ok
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
+    
+    // Verifică dacă avem date valide
+    if (!data.data || !data.data.children) {
+      throw new Error('Invalid response from Reddit');
+    }
     
     return data.data.children.map(child => ({
       id: child.data.id,
@@ -22,7 +37,6 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
-// Restul codului (reducer, selectors) rămâne exact la fel, nu îl modifici
 const postsSlice = createSlice({
   name: 'posts',
   initialState: {
@@ -30,10 +44,14 @@ const postsSlice = createSlice({
     isLoading: false,
     hasError: false,
     currentSubreddit: 'popular',
+    errorMessage: '', // Adaugă pentru mesaje de eroare mai clare
   },
   reducers: {
     setCurrentSubreddit: (state, action) => {
       state.currentSubreddit = action.payload;
+      // Resetează erorile când schimbăm subreddit-ul
+      state.hasError = false;
+      state.errorMessage = '';
     },
   },
   extraReducers: (builder) => {
@@ -41,14 +59,19 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.pending, (state) => {
         state.isLoading = true;
         state.hasError = false;
+        state.errorMessage = '';
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.posts = action.payload;
+        state.hasError = false;
+        state.errorMessage = '';
       })
-      .addCase(fetchPosts.rejected, (state) => {
+      .addCase(fetchPosts.rejected, (state, action) => {
         state.isLoading = false;
         state.hasError = true;
+        state.errorMessage = action.error.message || 'Failed to fetch posts';
+        state.posts = []; // Curăță postările vechi
       });
   },
 });
@@ -58,5 +81,6 @@ export const selectPosts = (state) => state.posts.posts;
 export const selectIsLoading = (state) => state.posts.isLoading;
 export const selectHasError = (state) => state.posts.hasError;
 export const selectCurrentSubreddit = (state) => state.posts.currentSubreddit;
+export const selectErrorMessage = (state) => state.posts.errorMessage;
 
 export default postsSlice.reducer;

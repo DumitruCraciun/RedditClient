@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PostList from './components/PostList';
 import PostDetail from './components/PostDetail';
 import SearchBar from './components/SearchBar';
@@ -8,12 +8,10 @@ import './App.css';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/RedditClient">
       <div className="App">
         <header className="app-header">
-          <Link to="/" style={{ textDecoration: 'none', color: 'white' }}>
-            <h1>Reddit Client</h1>
-          </Link>
+          <h1>Reddit Client</h1>
           <SearchBar />
         </header>
         <div className="app-content">
